@@ -1,0 +1,52 @@
+#!/bin/bash
+
+RUN_DIR=/var/vcap/sys/run/frontend
+PIDFILE=${RUN_DIR}/pid
+RUBYBIN=/var/vcap/packages/ruby_2.4.1/bin
+
+export ETCD_SERVERS="<%= p('frontend.etcd_servers').join(',') %>"
+
+case $1 in
+  start)
+    mkdir -p $RUN_DIR
+    chown -R vcap:vcap $RUN_DIR
+
+    echo $$ > $PIDFILE
+
+    cd /var/vcap/packages/frontend
+
+    export PATH=$RUBYBIN:$PATH
+
+    exec $RUBYBIN/bundle exec \
+      rackup -p <%= p("frontend.port") %> -o 0.0.0.0 \
+      >>  cat
+    ;;
+
+  stop)
+    kill -9 `cat $PIDFILE`
+    rm -f $PIDFILE
+    ;;
+
+  *)
+    echo "Usage: ctl {start|stop}"
+    exit 2
+    ;;
+esac
+Raw
+ frontend_job_spec.yml
+---
+name: frontend
+
+templates:
+  frontend_ctl.erb: bin/frontend_ctl
+
+packages:
+  - frontend
+  - ruby_2.4.1
+
+properties:
+  frontend.port:
+    description: Port that the frontend app listens on
+    default: 80
+  frontend.etcd_servers:
+    description: IP addresses of backend Etcd servers
