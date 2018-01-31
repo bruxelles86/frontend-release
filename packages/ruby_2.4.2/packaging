@@ -18,4 +18,3 @@ pushd rubygems-2.6.12
 popd
 
 ${BOSH_INSTALL_TARGET}/bin/gem install bundler-1.15.3.gem --no-ri --no-rdoc
-Raw
