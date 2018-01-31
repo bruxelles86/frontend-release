@@ -1,0 +1,8 @@
+---
+name: frontend
+
+dependencies:
+- ruby_2.4.2
+
+files:
+- frontend/**/*
